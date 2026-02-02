@@ -22,6 +22,13 @@ export const generateAIResponse = async (
   const conversation = await Conversation.findById(conversationId);
   const document = await Document.findById(conversation?.documentId);
 
+  if (!process.env.OPENROUTER_API_KEY) {
+    throw new Error("OPENROUTER_API_KEY not configured");
+  }
+
+  console.log("API Key exists:", !!process.env.OPENROUTER_API_KEY);
+  console.log("API Key starts with:", process.env.OPENROUTER_API_KEY?.substring(0, 10));
+
   const response = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
     {
@@ -52,6 +59,8 @@ export const generateAIResponse = async (
   );
 
   const data = await response.json();
+  
+  console.error("OpenRouter Response:", JSON.stringify(data, null, 2));
   
   if (data.error) {
     console.error("OpenRouter API Error:", data.error);
