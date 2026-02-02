@@ -28,6 +28,8 @@ export const generateAIResponse = async (
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "https://docchat-neon.vercel.app",
+        "X-Title": "DocChat",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
