@@ -1,43 +1,22 @@
 {
-  // Docs: https://aka.ms/tsconfig
   "compilerOptions": {
-    /* ===== File Structure ===== */
     "rootDir": "./src",
     "outDir": "./dist",
-
-    /* ===== Module & Environment ===== */
-    // Use modern Node ESM-style module resolution
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2022",
     "lib": ["ES2022"],
-    "types": ["node"],
-
-    /* ===== Output Options ===== */
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-
-    /* ===== Type Checking ===== */
     "strict": true,
-    "noEmit": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-    "allowImportingTsExtensions": true,
-
-    /* ===== Interop & Imports ===== */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noUncheckedSideEffectImports": true,
-
-    /* ===== Misc ===== */
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },

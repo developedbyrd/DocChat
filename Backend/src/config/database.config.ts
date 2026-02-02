@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const options = {
   maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 30000,
   socketTimeoutMS: 45000,
-  family: 4,
+  connectTimeoutMS: 30000,
 };
 
 export const connectDB = async () => {
