@@ -12,13 +12,13 @@ const Document = () => {
   const { documentId } = useParams();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const baseUrl = "http://localhost:3000";
+  const baseUrl = import.meta.env.VITE_API_URL;
 
   const { data: document, isLoading, error } = useDocument(documentId!);
   const { data: conversation } = useConversation(documentId!);
   const createConversation = useCreateConversation();
 
-  const fileUrl = document ? `${baseUrl}/api/documents/${document._id}/download` : "";
+  const fileUrl = document ? `${baseUrl}/documents/${document._id}/download` : "";
   const conversationId = conversation?._id || "";
 
   useEffect(() => {
