@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
   getConversation,
   createConversation,
-} from "../controllers/conversation.controller.ts";
-import { getMessages, sendMessage } from "../controllers/message.controller.ts";
+} from "../controllers/conversation.controller.js";
+import { getMessages, sendMessage } from "../controllers/message.controller.js";
 
 const router = Router();
 

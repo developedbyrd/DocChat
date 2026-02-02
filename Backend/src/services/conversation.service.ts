@@ -1,4 +1,4 @@
-import { Conversation } from "../models/Conversation.model.ts";
+import { Conversation } from "../models/Conversation.model.js";
 
 export const findConversationByDocumentId = async (documentId: string) => {
   return await Conversation.findOne({ documentId });

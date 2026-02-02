@@ -1,8 +1,8 @@
 import fs from "fs";
 import pdf from "pdf-parse";
-import { Document } from "../models/Document.model.ts";
-import { Conversation } from "../models/Conversation.model.ts";
-import { Message } from "../models/Message.model.ts";
+import { Document } from "../models/Document.model.js";
+import { Conversation } from "../models/Conversation.model.js";
+import { Message } from "../models/Message.model.js";
 
 export const createDocument = async (file: Express.Multer.File) => {
   const dataBuffer = fs.readFileSync(file.path);

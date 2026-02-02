@@ -4,7 +4,7 @@ import {
   getAllDocuments,
   getDocumentById,
   removeDocument,
-} from "../services/document.service.ts";
+} from "../services/document.service.js";
 
 export const uploadDocument = async (req: Request, res: Response) => {
   try {
@@ -29,7 +29,7 @@ export const getDocuments = async (req: Request, res: Response) => {
 
 export const getDocument = async (req: Request, res: Response) => {
   try {
-    const doc = await getDocumentById(req.params.id);
+    const doc = await getDocumentById(req.params.id as string);
     if (!doc) {
       return res.status(404).json({ error: "Document not found" });
     }
@@ -41,7 +41,7 @@ export const getDocument = async (req: Request, res: Response) => {
 
 export const deleteDocument = async (req: Request, res: Response) => {
   try {
-    await removeDocument(req.params.id);
+    await removeDocument(req.params.id as string);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete document" });

@@ -1,9 +1,9 @@
 import express, { type Application } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { connectDB } from "./config/database.config.ts";
-import documentRoutes from "./routes/document.routes.ts";
-import conversationRoutes from "./routes/conversation.routes.ts";
+import { connectDB } from "./config/database.config.js";
+import documentRoutes from "./routes/document.routes.js";
+import conversationRoutes from "./routes/conversation.routes.js";
 
 dotenv.config();
 

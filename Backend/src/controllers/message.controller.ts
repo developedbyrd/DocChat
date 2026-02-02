@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
-import * as messageService from "../services/message.service.ts";
+import * as messageService from "../services/message.service.js";
 
 export const getMessages = async (req: Request, res: Response) => {
   try {
     const messages = await messageService.getMessagesByConversationId(
-      req.params.id
+      req.params.id as string
     );
     res.json(messages);
   } catch (error) {
@@ -16,14 +16,14 @@ export const sendMessage = async (req: Request, res: Response) => {
   try {
     const { role, content } = req.body;
     const message = await messageService.createMessage(
-      req.params.id,
+      req.params.id as string,
       role,
       content
     );
 
     if (role === "user") {
       const aiResponse = await messageService.generateAIResponse(
-        req.params.id,
+        req.params.id as string,
         content
       );
       res.json({ userMessage: message, aiResponse });

@@ -1,6 +1,6 @@
-import { Message } from "../models/Message.model.ts";
-import { Conversation } from "../models/Conversation.model.ts";
-import { Document } from "../models/Document.model.ts";
+import { Message } from "../models/Message.model.js";
+import { Conversation } from "../models/Conversation.model.js";
+import { Document } from "../models/Document.model.js";
 
 export const getMessagesByConversationId = async (conversationId: string) => {
   return await Message.find({ conversationId }).sort({ createdAt: 1 });
