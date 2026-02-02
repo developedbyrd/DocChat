@@ -70,7 +70,7 @@ export const useSendMessage = () => {
         return [...withoutTemp, data.userMessage, data.aiResponse];
       });
     },
-    onError: (err, { conversationId }, context) => {
+    onError: (_err, { conversationId }, context) => {
       if (context?.previousMessages) {
         queryClient.setQueryData(
           ["messages", conversationId],

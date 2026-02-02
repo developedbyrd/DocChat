@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDocuments, useDeleteDocument } from "@/hooks/useDocuments";
 import DocumentUpload from "@/components/DocumentUpload";
@@ -13,14 +13,6 @@ import {
 import { FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-interface Document {
-  _id: string;
-  title: string;
-  uploadedAt: string;
-  fileSize: number;
-  filePath: string;
-}
 
 const Home = () => {
   const navigate = useNavigate();
@@ -107,7 +99,7 @@ const Home = () => {
                 <CardContent>
                   <ScrollArea className="h-[400px]">
                     <div className="space-y-2">
-                      {documents.map((doc) => (
+                      {documents.map((doc: any) => (
                         <div
                           key={doc._id}
                           className="flex items-center justify-between p-3 rounded-lg hover:bg-[hsl(var(--hover-bg))] transition-colors cursor-pointer group"
