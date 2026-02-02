@@ -1,6 +1,7 @@
 import { Message } from "../models/Message.model.js";
 import { Conversation } from "../models/Conversation.model.js";
 import { Document } from "../models/Document.model.js";
+import axios from "axios";
 
 export const getMessagesByConversationId = async (conversationId: string) => {
   return await Message.find({ conversationId }).sort({ createdAt: 1 });
@@ -29,37 +30,34 @@ export const generateAIResponse = async (
   console.log("API Key exists:", !!process.env.OPENROUTER_API_KEY);
   console.log("API Key starts with:", process.env.OPENROUTER_API_KEY?.substring(0, 10));
 
-  const response = await fetch(
+  const { data } = await axios.post(
     "https://openrouter.ai/api/v1/chat/completions",
     {
-      method: "POST",
+      model: "openai/gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: `You are a helpful assistant that answers questions about the following document:\n\n${document?.textContent?.substring(
+            0,
+            8000
+          )}`,
+        },
+        {
+          role: "user",
+          content: userContent,
+        },
+      ],
+    },
+    {
       headers: {
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "HTTP-Referer": "https://docchat-neon.vercel.app",
         "X-Title": "DocChat",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: `You are a helpful assistant that answers questions about the following document:\n\n${document?.textContent?.substring(
-              0,
-              8000
-            )}`,
-          },
-          {
-            role: "user",
-            content: userContent,
-          },
-        ],
-      }),
     }
   );
 
-  const data = await response.json();
-  
   console.error("OpenRouter Response:", JSON.stringify(data, null, 2));
   
   if (data.error) {
