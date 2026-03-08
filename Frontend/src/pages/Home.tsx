@@ -1,6 +1,7 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDocuments, useDeleteDocument } from "@/hooks/useDocuments";
+import { useAuth } from "@/context/AuthContext";
 import DocumentUpload from "@/components/DocumentUpload";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,14 +11,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileText, Trash2 } from "lucide-react";
+import { FileText, Trash2, LogOut, User, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const { data: documents = [], isLoading: loading } = useDocuments();
   const deleteDocument = useDeleteDocument();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    setShowUserMenu(false);
+    navigate("/login");
+    toast.success("Logged out successfully");
+  }, [logout, navigate]);
 
   const handleDelete = useCallback((id: string) => {
     deleteDocument.mutate(id, {
@@ -67,6 +77,40 @@ const Home = () => {
             <h1 className="text-xl font-semibold">DocChat</h1>
             <p className="text-sm text-muted-foreground">Chat with your PDFs</p>
           </div>
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-secondary transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <User className="h-4 w-4 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-medium line-clamp-1">{user?.name}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
+              </div>
+            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground ml-1" />
+          </button>
+
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-48 rounded-lg border border-border bg-card shadow-lg z-50">
+              <div className="p-3 border-b border-border">
+                <p className="text-sm font-medium text-foreground">{user?.name}</p>
+                <p className="text-xs text-muted-foreground wrap-break-words">{user?.email}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors text-left cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

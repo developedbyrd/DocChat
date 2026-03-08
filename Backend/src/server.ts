@@ -4,6 +4,8 @@ import cors from "cors";
 import { connectDB } from "./config/database.config.js";
 import documentRoutes from "./routes/document.routes.js";
 import conversationRoutes from "./routes/conversation.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import { authMiddleware } from "./middleware/auth.middleware.js";
 
 dotenv.config();
 
@@ -14,8 +16,12 @@ app.use(express.json());
 
 connectDB();
 
-app.use("/api/documents", documentRoutes);
-app.use("/api/conversations", conversationRoutes);
+// Public auth routes
+app.use("/api/auth", authRoutes);
+
+// Protected routes (require authentication)
+app.use("/api/documents", authMiddleware, documentRoutes);
+app.use("/api/conversations", authMiddleware, conversationRoutes);
 
 const PORT = process.env.PORT || 3000;
 
