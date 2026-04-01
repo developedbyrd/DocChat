@@ -3,12 +3,17 @@ import {
   getConversation,
   createConversation,
 } from "../controllers/conversation.controller.js";
-import { getMessages, sendMessage } from "../controllers/message.controller.js";
+import {
+  getMessages,
+  sendMessage,
+  downloadGeneratedPdf,
+} from "../controllers/message.controller.js";
 
 const router = Router();
 
 router.get("/", getConversation);
 router.post("/", createConversation);
+router.get("/:id/messages/:messageId/generated-pdf", downloadGeneratedPdf);
 router.get("/:id/messages", getMessages);
 router.post("/:id/messages", sendMessage);
 

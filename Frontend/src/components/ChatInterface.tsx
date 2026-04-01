@@ -194,15 +194,17 @@ import { useState, useRef, useEffect, memo, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, FileDown } from "lucide-react";
 import { useMessages, useSendMessage } from "@/hooks/useConversations";
 import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   citations?: { page: number; text: string }[];
+  generatedPdfFileName?: string;
 }
 
 interface ChatInterfaceProps {
@@ -228,6 +230,7 @@ const ChatInterface = ({
         role: msg.role as "user" | "assistant",
         content: msg.content,
         citations: msg.citations,
+        generatedPdfFileName: msg.generatedPdfFileName,
       })),
     [messagesData],
   );
@@ -255,14 +258,33 @@ const ChatInterface = ({
     );
   }, [input, sendMessage, conversationId]);
 
+  const handleDownloadGenerated = useCallback(
+    async (messageId: string) => {
+      try {
+        const buf = await api.downloadGeneratedPdf(conversationId, messageId);
+        const blob = new Blob([buf], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "docchat-generated.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("PDF downloaded");
+      } catch {
+        toast.error("Could not download PDF");
+      }
+    },
+    [conversationId],
+  );
+
   return (
     <div className="h-full flex flex-col bg-background">
 
       <div className="p-4 border-b border-border">
         <h2 className="text-lg font-semibold">Your AI Document Assistant</h2>
         <p className="text-sm text-muted-foreground">
-          Ask anything, get instant answers, and explore your document
-          effortlessly
+          Ask about the document, or describe any PDF you want built from it (e.g.
+          &quot;create a PDF with just the introduction and conclusion&quot;).
         </p>
       </div>
 
@@ -316,6 +338,19 @@ const ChatInterface = ({
                     ))}
                   </div>
                 )}
+
+                {message.role === "assistant" && message.generatedPdfFileName && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="mt-3 cursor-pointer"
+                    onClick={() => handleDownloadGenerated(message.id)}
+                  >
+                    <FileDown className="h-4 w-4 mr-2" />
+                    Download PDF
+                  </Button>
+                )}
               </div>
 
               {message.role === "user" && (
@@ -359,7 +394,7 @@ const ChatInterface = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            placeholder="Curious? Ask me anything about this document..."
+            placeholder="Ask about the PDF, or request a new generated PDF…"
             disabled={sendMessage.isPending}
           />
           <Button

@@ -72,7 +72,7 @@ const DocumentUpload = ({ onUploadComplete }: DocumentUploadProps) => {
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="file-upload">
-              <Button disabled={uploadDocument.isPending} asChild>
+              <Button disabled={uploadDocument.isPending} asChild className="cursor-pointer">
                 <span>{uploadDocument.isPending ? "Uploading..." : "Choose File"}</span>
               </Button>
             </label>

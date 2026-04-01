@@ -81,10 +81,16 @@
 
 
 
-import axios from 'axios';
+import axios from "axios";
 import { Message } from "../models/Message.model.js";
 import { Conversation } from "../models/Conversation.model.js";
 import { Document } from "../models/Document.model.js";
+import {
+  wantsPdfGeneration,
+  fetchPdfPlanFromAI,
+  buildPdfBuffer,
+  saveGeneratedPdf,
+} from "./pdfGeneration.service.js";
 
 export const getMessagesByConversationId = async (conversationId: string) => {
   return await Message.find({ conversationId }).sort({ createdAt: 1 });
@@ -105,6 +111,26 @@ export const generateAIResponse = async (
 ) => {
   const conversation = await Conversation.findById(conversationId);
   const document = await Document.findById(conversation?.documentId);
+  const docText = document?.textContent ?? "";
+
+  if (wantsPdfGeneration(userContent)) {
+    try {
+      const plan = await fetchPdfPlanFromAI(docText, userContent);
+      const buffer = await buildPdfBuffer(plan);
+      const fileName = await saveGeneratedPdf(buffer);
+      const summary = `I've generated a new PDF titled "${plan.title}" with ${plan.sections.length} section(s) based on your request and the current document. Use the Download PDF button below to save it.`;
+      const aiResponse = new Message({
+        conversationId,
+        role: "assistant",
+        content: summary,
+        citations: [],
+        generatedPdfFileName: fileName,
+      });
+      return await aiResponse.save();
+    } catch (pdfErr) {
+      console.error("PDF generation failed, falling back to chat:", pdfErr);
+    }
+  }
 
   try {
     const response = await axios.post(
@@ -114,7 +140,7 @@ export const generateAIResponse = async (
         messages: [
           {
             role: "system",
-            content: `You are a helpful assistant that answers questions about the following document:\n\n${document?.textContent?.substring(
+            content: `You are a helpful assistant that answers questions about the following document:\n\n${docText.substring(
               0,
               8000
             )}`,
@@ -133,8 +159,8 @@ export const generateAIResponse = async (
       }
     );
 
-    const aiContent = response.data.choices?.[0]?.message?.content || 
-                     "Sorry, I couldn't process your request.";
+    const aiContent = response.data.choices?.[0]?.message?.content ||
+      "Sorry, I couldn't process your request.";
 
     const aiResponse = new Message({
       conversationId,
@@ -143,7 +169,6 @@ export const generateAIResponse = async (
       citations: [{ page: 1, text: "From document" }],
     });
     return await aiResponse.save();
-    
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("OpenRouter API Error:", error.response?.data?.error || error.message);

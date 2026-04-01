@@ -5,15 +5,17 @@ import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PDFViewerProps {
-  fileUrl: string;
+  file: ArrayBuffer | null;
+  /** Resets viewer state when switching documents */
+  documentKey?: string;
   currentPage: number;
   onPageChange: (page: number) => void;
 }
 
-const PDFViewer = ({ fileUrl, currentPage, onPageChange }: PDFViewerProps) => {
+const PDFViewer = ({ file, documentKey, currentPage, onPageChange }: PDFViewerProps) => {
   const [numPages, setNumPages] = useState<number>(0);
   const [scale, setScale] = useState(1.0);
 
@@ -39,7 +41,17 @@ const PDFViewer = ({ fileUrl, currentPage, onPageChange }: PDFViewerProps) => {
 
   useEffect(() => {
     onPageChange(1);
-  }, [fileUrl]);
+  }, [documentKey, onPageChange]);
+
+  if (!file) {
+    return (
+      <div className="h-full flex flex-col bg-[hsl(var(--panel-bg))]">
+        <div className="flex-1 flex items-center justify-center p-4">
+          <p className="text-muted-foreground">Loading PDF...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-[hsl(var(--panel-bg))]">
@@ -92,7 +104,8 @@ const PDFViewer = ({ fileUrl, currentPage, onPageChange }: PDFViewerProps) => {
       <div className="flex-1 overflow-auto p-4">
         <div className="flex justify-center">
           <Document
-            file={fileUrl}
+            key={documentKey}
+            file={file}
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
               <div className="text-muted-foreground">Loading PDF...</div>

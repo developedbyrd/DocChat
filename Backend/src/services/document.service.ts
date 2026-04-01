@@ -1,28 +1,36 @@
 import fs from "fs";
-import * as pdfParse from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import { Document } from "../models/Document.model.js";
 import { Conversation } from "../models/Conversation.model.js";
 import { Message } from "../models/Message.model.js";
 
 export const createDocument = async (file: Express.Multer.File) => {
   const dataBuffer = fs.readFileSync(file.path);
-  const pdfData = await (pdfParse as any).default(dataBuffer);
-  const base64Data = dataBuffer.toString('base64');
+  const base64Data = dataBuffer.toString("base64");
+
+  const parser = new PDFParse({ data: dataBuffer });
+  let textContent = "";
+  try {
+    const pdfText = await parser.getText();
+    textContent = pdfText.text;
+  } finally {
+    await parser.destroy();
+  }
 
   const doc = new Document({
     title: file.originalname,
     filePath: file.path,
     fileSize: file.size,
-    textContent: pdfData.text,
+    textContent,
     fileData: base64Data,
   });
-  
+
   const saved = await doc.save();
-  
+
   if (fs.existsSync(file.path)) {
     fs.unlinkSync(file.path);
   }
-  
+
   return saved;
 };
 
