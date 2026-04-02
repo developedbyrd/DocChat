@@ -85,8 +85,16 @@ import axios from "axios";
 import { Message } from "../models/Message.model.js";
 import { Conversation } from "../models/Conversation.model.js";
 import { Document } from "../models/Document.model.js";
+import { PDFDocument } from "pdf-lib";
 import {
   wantsPdfGeneration,
+  wantsAiComposedPdf,
+  wantsPreserveOriginalPdf,
+  wantsExactStyleMatching,
+  extractPdfOverlayInstructions,
+  resolvePreservePageNumbers,
+  buildPdfPreservingOriginal,
+  extractDocumentStyle,
   fetchPdfPlanFromAI,
   buildPdfBuffer,
   saveGeneratedPdf,
@@ -115,10 +123,87 @@ export const generateAIResponse = async (
 
   if (wantsPdfGeneration(userContent)) {
     try {
+      if (wantsPreserveOriginalPdf(userContent) && document?.fileData) {
+        const overlay = await extractPdfOverlayInstructions(userContent);
+        const originalBytes = Buffer.from(document.fileData, "base64");
+        const srcForCount = await PDFDocument.load(originalBytes, {
+          ignoreEncryption: true,
+        });
+        const totalInUpload = srcForCount.getPageCount();
+        const selectedPages = await resolvePreservePageNumbers(
+          userContent,
+          totalInUpload,
+        );
+        const buffer = await buildPdfPreservingOriginal(
+          originalBytes,
+          overlay,
+          selectedPages,
+        );
+        const fileName = await saveGeneratedPdf(buffer);
+        const overlayDesc =
+          overlay.lines.length > 0
+            ? ` I added ${overlay.lines.length} line(s) at the top${overlay.allPages ? " of every page" : " of the first page"}.`
+            : "";
+        const rangeDesc =
+          selectedPages && selectedPages.length > 0
+            ? (() => {
+                const first = selectedPages[0];
+                const last = selectedPages[selectedPages.length - 1];
+                const contiguous =
+                  selectedPages.length === last - first + 1 &&
+                  selectedPages.every((p, i) => p === first + i);
+                const spec = contiguous
+                  ? `${first}–${last}`
+                  : selectedPages.join(", ");
+                return ` Included ${selectedPages.length} page(s) (${spec}) from your ${totalInUpload}-page upload.`;
+              })()
+            : ` Included all ${totalInUpload} page(s) from your upload.`;
+        const summary = `I've generated a PDF from your original file (no text summarization).${rangeDesc}${overlayDesc} Use the Download PDF button below to save it.`;
+        const aiResponse = new Message({
+          conversationId,
+          role: "assistant",
+          content: summary,
+          citations: [],
+          generatedPdfFileName: fileName,
+        });
+        return await aiResponse.save();
+      }
+
+      // Check if user wants exact style matching (fonts, colors from original)
+      const wantsExactStyle = wantsExactStyleMatching(userContent);
+      console.log("User wants exact style matching:", wantsExactStyle);
+      
+      let style = undefined;
+      
+      if (wantsExactStyle && document?.fileData) {
+        try {
+          console.log("Attempting to extract document style...");
+          const originalBytes = Buffer.from(document.fileData, "base64");
+          style = await extractDocumentStyle(originalBytes);
+          console.log("Extracted style:", style);
+        } catch (styleErr) {
+          console.error("Failed to extract document style, using defaults:", styleErr);
+        }
+      }
+
       const plan = await fetchPdfPlanFromAI(docText, userContent);
-      const buffer = await buildPdfBuffer(plan);
+      console.log("Using style for PDF generation:", style);
+      const buffer = await buildPdfBuffer(plan, style);
       const fileName = await saveGeneratedPdf(buffer);
-      const summary = `I've generated a new PDF titled "${plan.title}" with ${plan.sections.length} section(s) based on your request and the current document. Use the Download PDF button below to save it.`;
+      
+      // Customize message based on whether style matching was requested
+      let typographyNote: string;
+      if (wantsExactStyle) {
+        typographyNote = style?.primaryFont 
+          ? " I've attempted to match the font style from your original document."
+          : " The PDF uses standard fonts (embedded font extraction is limited).";
+      } else if (wantsAiComposedPdf(userContent)) {
+        typographyNote = " The PDF uses a standard on-screen font and size.";
+      } else {
+        typographyNote = "";
+      }
+      
+      const summary = `I've generated a new PDF titled "${plan.title}" with ${plan.sections.length} section(s) based on your request.${typographyNote} Use the Download PDF button below to save it.`;
       const aiResponse = new Message({
         conversationId,
         role: "assistant",
