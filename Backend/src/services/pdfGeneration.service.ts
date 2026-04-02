@@ -33,8 +33,12 @@ export function wantsPdfGeneration(userContent: string): boolean {
 
   // Likely viewing the existing file, not asking for a newly built PDF
   if (
-    /\b(open|read|view|display|show|see)\s+(the\s+|this\s+|my\s+)?pdf\b/.test(t) &&
-    !/\b(create|generate|make|new|export|build|another|second|different)\b/.test(t)
+    /\b(open|read|view|display|show|see)\s+(the\s+|this\s+|my\s+)?pdf\b/.test(
+      t,
+    ) &&
+    !/\b(create|generate|make|new|export|build|another|second|different)\b/.test(
+      t,
+    )
   ) {
     return false;
   }
@@ -43,7 +47,9 @@ export function wantsPdfGeneration(userContent: string): boolean {
     /\b(generate|create|make|export|build|produce|draft|prepare|compile)\s+(a\s+|an\s+|the\s+|my\s+|this\s+)?(\w+\s+){0,4}pdf\b/.test(
       t,
     ) ||
-    /\b(generate|create|make|export|build)\s+(a\s+|an\s+|my\s+)?(new\s+)?pdf\b/.test(t) ||
+    /\b(generate|create|make|export|build)\s+(a\s+|an\s+|my\s+)?(new\s+)?pdf\b/.test(
+      t,
+    ) ||
     /\bnew\s+pdf\b/.test(t) ||
     /\b(give|send|get)\s+(me\s+)?(a\s+|an\s+)?pdf\b/.test(t) ||
     /\b(want|need)\s+(a\s+|an\s+|my\s+)?(new\s+)?pdf\b/.test(t) ||
@@ -78,10 +84,7 @@ export function wantsAiComposedPdf(userContent: string): boolean {
   if (/\b(key|main|important)\s+points?\b/.test(t)) return true;
   if (/\bbullet(s)?\s+points?\b/.test(t)) return true;
   if (/\bbullet(s)?\b/.test(t) && /\b(list|outline)\b/.test(t)) return true;
-  if (
-    /\bhighlights?\b/.test(t) &&
-    /\b(pdf|document|generate|create)\b/.test(t)
-  )
+  if (/\bhighlights?\b/.test(t) && /\b(pdf|document|generate|create)\b/.test(t))
     return true;
   if (
     /\boverview\b/.test(t) &&
@@ -98,29 +101,39 @@ export function wantsAiComposedPdf(userContent: string): boolean {
  */
 export function wantsExactStyleMatching(userContent: string): boolean {
   const t = userContent.toLowerCase();
-  
+
   // Font matching requests
-  const fontMatch = /\b(same|exact|identical|match|clone)\b.*\b(font|typeface|typography|text style)/.test(t) ||
-                    /\b(font|typeface|typography)\b.*\b(same|exact|identical|match|clone)/.test(t) ||
-                    /\b(exact|same)\s+font\b/.test(t) ||
-                    /\bfont\s+and\s+everything\s+same\b/.test(t);
-  
+  const fontMatch =
+    /\b(same|exact|identical|match|clone)\b.*\b(font|typeface|typography|text style)/.test(
+      t,
+    ) ||
+    /\b(font|typeface|typography)\b.*\b(same|exact|identical|match|clone)/.test(
+      t,
+    ) ||
+    /\b(exact|same)\s+font\b/.test(t) ||
+    /\bfont\s+and\s+everything\s+same\b/.test(t);
+
   // Color matching requests
-  const colorMatch = /\b(same|exact|identical|match|clone)\b.*\b(color|colour)/.test(t) ||
-                     /\b(color|colour)\b.*\b(same|exact|identical|match|clone)/.test(t) ||
-                     /\b(exact|same)\s+(color|colour)\b/.test(t);
-  
+  const colorMatch =
+    /\b(same|exact|identical|match|clone)\b.*\b(color|colour)/.test(t) ||
+    /\b(color|colour)\b.*\b(same|exact|identical|match|clone)/.test(t) ||
+    /\b(exact|same)\s+(color|colour)\b/.test(t);
+
   // Size matching requests
-  const sizeMatch = /\b(same|exact|identical|match)\b.*\b(size|sizing)/.test(t) ||
-                    /\bsize\b.*\b(same|exact|identical|match)/.test(t) ||
-                    /\b(exact|same)\s+size\b/.test(t);
-  
+  const sizeMatch =
+    /\b(same|exact|identical|match)\b.*\b(size|sizing)/.test(t) ||
+    /\bsize\b.*\b(same|exact|identical|match)/.test(t) ||
+    /\b(exact|same)\s+size\b/.test(t);
+
   // Comprehensive "everything same" requests
-  const everythingMatch = /\b(everything|all|exactly)\s+(same|identical|like|as)\b/.test(t) ||
-                          /\bmatch\s+(the\s+)?(original|uploaded|source)\s+(pdf|document)\s+exactly\b/.test(t) ||
-                          /\bclone\s+(the\s+)?(style|look|appearance|formatting)\b/.test(t) ||
-                          /\b(same|identical)\s+(style|look|appearance|formatting)\b/.test(t);
-  
+  const everythingMatch =
+    /\b(everything|all|exactly)\s+(same|identical|like|as)\b/.test(t) ||
+    /\bmatch\s+(the\s+)?(original|uploaded|source)\s+(pdf|document)\s+exactly\b/.test(
+      t,
+    ) ||
+    /\bclone\s+(the\s+)?(style|look|appearance|formatting)\b/.test(t) ||
+    /\b(same|identical)\s+(style|look|appearance|formatting)\b/.test(t);
+
   return fontMatch || colorMatch || sizeMatch || everythingMatch;
 }
 
@@ -160,12 +173,18 @@ export function wantsPreserveOriginalPdf(userContent: string): boolean {
       !/\bsame\s+(text|font|color|colour|size|style)\b/.test(t)) ||
     /\bwithout\s+(any\s+)?summar/i.test(t) ||
     /\bno\s+summar/i.test(t) ||
-    /\b(same|identical)\s+(as|to)\s+(the\s+|my\s+)?(upload|uploaded)\b/.test(t) ||
+    /\b(same|identical)\s+(as|to)\s+(the\s+|my\s+)?(upload|uploaded)\b/.test(
+      t,
+    ) ||
     /\bfrom\s+page\s+1\s+to\s+(the\s+)?last\b/.test(t) ||
     /\bpage\s+1\s+to\s+(the\s+)?last\b/.test(t) ||
     (/\ball\s+pages\b/.test(t) &&
-      /\b(same|original|exact|full|no\s+summar|without\s+summar|preserve|unchanged)\b/.test(t)) ||
-    /\bpreserve\s+(the\s+)?(original\s+)?(pdf|document|content|file)\b/.test(t) ||
+      /\b(same|original|exact|full|no\s+summar|without\s+summar|preserve|unchanged)\b/.test(
+        t,
+      )) ||
+    /\bpreserve\s+(the\s+)?(original\s+)?(pdf|document|content|file)\b/.test(
+      t,
+    ) ||
     /\bas\s+uploaded\b/.test(t) ||
     /\bdo\s+not\s+summar/i.test(t) ||
     /\bdon't\s+summar/i.test(t) ||
@@ -203,22 +222,22 @@ export async function extractDocumentStyle(
     // Try to get embedded fonts from the document
     // Note: pdf-lib provides limited font introspection
     const fonts: Array<{ subtype: string; baseFont: string }> = [];
-    
+
     // Method 1: Try to enumerate indirect objects for fonts
     try {
       const indirectObjects = pdfDoc.context.enumerateIndirectObjects();
       for (const [, obj] of indirectObjects) {
-        if (typeof obj === 'object' && obj !== null) {
+        if (typeof obj === "object" && obj !== null) {
           const dict = obj as any;
           if (dict.dict && dict.dict.get) {
-            const type = dict.dict.get('Type')?.toString();
-            if (type === '/Font') {
-              const subtype = dict.dict.get('Subtype')?.toString() || '';
-              const baseFont = dict.dict.get('BaseFont')?.toString() || '';
-              const fontName = dict.dict.get('FontName')?.toString() || '';
-              fonts.push({ 
-                subtype, 
-                baseFont: baseFont || fontName 
+            const type = dict.dict.get("Type")?.toString();
+            if (type === "/Font") {
+              const subtype = dict.dict.get("Subtype")?.toString() || "";
+              const baseFont = dict.dict.get("BaseFont")?.toString() || "";
+              const fontName = dict.dict.get("FontName")?.toString() || "";
+              fonts.push({
+                subtype,
+                baseFont: baseFont || fontName,
               });
             }
           }
@@ -227,21 +246,21 @@ export async function extractDocumentStyle(
     } catch (err) {
       console.log("Failed to enumerate indirect objects for fonts:", err);
     }
-    
+
     // Method 2: Try to check page resources for fonts
     try {
       const page = pdfDoc.getPage(0);
       const node = pdfDoc.context.lookup(page.ref) as any;
-      if (node && node.dict && node.dict.get('Resources')) {
-        const resources = node.dict.get('Resources');
-        if (resources && resources.dict && resources.dict.get('Font')) {
-          const fontDict = resources.dict.get('Font');
+      if (node && node.dict && node.dict.get("Resources")) {
+        const resources = node.dict.get("Resources");
+        if (resources && resources.dict && resources.dict.get("Font")) {
+          const fontDict = resources.dict.get("Font");
           if (fontDict && fontDict.dict) {
             for (const [fontName, fontRef] of fontDict.dict.entries()) {
               if (fontRef && fontRef.toString) {
-                fonts.push({ 
-                  subtype: 'Type1', 
-                  baseFont: fontName.toString() 
+                fonts.push({
+                  subtype: "Type1",
+                  baseFont: fontName.toString(),
                 });
               }
             }
@@ -251,55 +270,61 @@ export async function extractDocumentStyle(
     } catch (err) {
       console.log("Failed to check page resources for fonts:", err);
     }
-    
+
     console.log("Total fonts found:", fonts.length);
 
     // Map common font patterns to standard fonts
     const fontMapping: Record<string, StandardFonts> = {
-      'Times': StandardFonts.TimesRoman,
-      'TimesNewRoman': StandardFonts.TimesRoman,
-      'Times-Roman': StandardFonts.TimesRoman,
-      'TimesNewRomanPS': StandardFonts.TimesRoman,
-      'Arial': StandardFonts.Helvetica,
-      'Helvetica': StandardFonts.Helvetica,
-      'Verdana': StandardFonts.Helvetica,
-      'Calibri': StandardFonts.Helvetica,
-      'Courier': StandardFonts.Courier,
-      'CourierNew': StandardFonts.Courier,
-      'Monospace': StandardFonts.Courier,
-      'Georgia': StandardFonts.TimesRoman,
+      Times: StandardFonts.TimesRoman,
+      TimesNewRoman: StandardFonts.TimesRoman,
+      "Times-Roman": StandardFonts.TimesRoman,
+      TimesNewRomanPS: StandardFonts.TimesRoman,
+      Arial: StandardFonts.Helvetica,
+      Helvetica: StandardFonts.Helvetica,
+      Verdana: StandardFonts.Helvetica,
+      Calibri: StandardFonts.Helvetica,
+      Courier: StandardFonts.Courier,
+      CourierNew: StandardFonts.Courier,
+      Monospace: StandardFonts.Courier,
+      Georgia: StandardFonts.TimesRoman,
     };
 
     const boldFontMapping: Record<string, StandardFonts> = {
-      'Times': StandardFonts.TimesRomanBold,
-      'TimesNewRoman': StandardFonts.TimesRomanBold,
-      'Times-Roman': StandardFonts.TimesRomanBold,
-      'Arial': StandardFonts.HelveticaBold,
-      'Helvetica': StandardFonts.HelveticaBold,
-      'Verdana': StandardFonts.HelveticaBold,
-      'Calibri': StandardFonts.HelveticaBold,
-      'Courier': StandardFonts.CourierBold,
-      'CourierNew': StandardFonts.CourierBold,
-      'Monospace': StandardFonts.CourierBold,
-      'Georgia': StandardFonts.TimesRomanBold,
+      Times: StandardFonts.TimesRomanBold,
+      TimesNewRoman: StandardFonts.TimesRomanBold,
+      "Times-Roman": StandardFonts.TimesRomanBold,
+      Arial: StandardFonts.HelveticaBold,
+      Helvetica: StandardFonts.HelveticaBold,
+      Verdana: StandardFonts.HelveticaBold,
+      Calibri: StandardFonts.HelveticaBold,
+      Courier: StandardFonts.CourierBold,
+      CourierNew: StandardFonts.CourierBold,
+      Monospace: StandardFonts.CourierBold,
+      Georgia: StandardFonts.TimesRomanBold,
     };
 
     // Heuristic: if we found fonts, try to map them
     if (fonts.length > 0) {
-      console.log("Found fonts in PDF:", fonts.map(f => ({ baseFont: f.baseFont, subtype: f.subtype })));
-      
+      console.log(
+        "Found fonts in PDF:",
+        fonts.map((f) => ({ baseFont: f.baseFont, subtype: f.subtype })),
+      );
+
       // Look for heading-like fonts (bold variants)
-      const boldFont = fonts.find(f => 
-        f.baseFont.toLowerCase().includes('bold') ||
-        f.baseFont.toLowerCase().includes('black') ||
-        f.baseFont.toLowerCase().includes('heavy')
+      const boldFont = fonts.find(
+        (f) =>
+          f.baseFont.toLowerCase().includes("bold") ||
+          f.baseFont.toLowerCase().includes("black") ||
+          f.baseFont.toLowerCase().includes("heavy"),
       );
 
       // Look for body fonts (regular, not bold)
-      const bodyFont = fonts.find(f => 
-        !f.baseFont.toLowerCase().includes('bold') &&
-        !f.baseFont.toLowerCase().includes('italic')
-      ) || fonts[0];
+      const bodyFont =
+        fonts.find(
+          (f) =>
+            !f.baseFont.toLowerCase().includes("bold") &&
+            !f.baseFont.toLowerCase().includes("italic"),
+        ) || fonts[0];
 
       console.log("Selected bodyFont:", bodyFont?.baseFont);
       console.log("Selected boldFont:", boldFont?.baseFont);
@@ -310,7 +335,9 @@ export async function extractDocumentStyle(
           if (bodyFont.baseFont.toLowerCase().includes(pattern.toLowerCase())) {
             style.bodyFont = standardFont;
             style.primaryFont = standardFont;
-            console.log(`Mapped body font ${bodyFont.baseFont} to ${standardFont}`);
+            console.log(
+              `Mapped body font ${bodyFont.baseFont} to ${standardFont}`,
+            );
             break;
           }
         }
@@ -321,7 +348,9 @@ export async function extractDocumentStyle(
         for (const [pattern, standardFont] of Object.entries(boldFontMapping)) {
           if (boldFont.baseFont.toLowerCase().includes(pattern.toLowerCase())) {
             style.headingFont = standardFont;
-            console.log(`Mapped heading font ${boldFont.baseFont} to ${standardFont}`);
+            console.log(
+              `Mapped heading font ${boldFont.baseFont} to ${standardFont}`,
+            );
             break;
           }
         }
@@ -346,7 +375,6 @@ export async function extractDocumentStyle(
     style.headingColor = { r: 0.15, g: 0.15, b: 0.45 };
     style.bodyColor = { r: 0.1, g: 0.1, b: 0.1 };
     style.backgroundColor = { r: 1, g: 1, b: 1 };
-
   } catch (err) {
     console.error("Failed to extract document style:", err);
     // Return default styles
@@ -399,8 +427,12 @@ export function parsePagesFromPromptLocal(
   const t = prompt.toLowerCase();
 
   if (/\bpage\s+\d+\s+to\s+(the\s+)?(last|end)\b/.test(t)) return undefined;
-  if (/\bfrom\s+page\s+\d+\s+to\s+(the\s+)?(last|end)\b/.test(t)) return undefined;
-  if (/\ball\s+pages\b/.test(t) && !/\bonly\s+|\bjust\s+|\bfirst\s+\d+|\blast\s+\d+/i.test(prompt))
+  if (/\bfrom\s+page\s+\d+\s+to\s+(the\s+)?(last|end)\b/.test(t))
+    return undefined;
+  if (
+    /\ball\s+pages\b/.test(t) &&
+    !/\bonly\s+|\bjust\s+|\bfirst\s+\d+|\blast\s+\d+/i.test(prompt)
+  )
     return undefined;
 
   const lastN = /\blast\s+(\d+)\s+pages?\b/i.exec(prompt);
@@ -471,9 +503,12 @@ function shouldResolvePagesWithAi(
 ): boolean {
   if (local !== undefined) return false;
   if (!/\bpage(s)?\b/i.test(prompt)) return false;
-  if (/\b(all|entire|every|full)\s+(pdf|document)\b/i.test(prompt)) return false;
+  if (/\b(all|entire|every|full)\s+(pdf|document)\b/i.test(prompt))
+    return false;
   if (/\bsummar(y|ize)/i.test(prompt)) return false;
-  return /\d/.test(prompt) || /\b(odd|even|skip|every|except|but)\b/i.test(prompt);
+  return (
+    /\d/.test(prompt) || /\b(odd|even|skip|every|except|but)\b/i.test(prompt)
+  );
 }
 
 async function fetchPagesFromAI(
@@ -491,13 +526,12 @@ async function fetchPagesFromAI(
         {
           role: "system",
           content: `The user has a PDF with exactly ${totalPages} pages (valid page numbers are 1 through ${totalPages}). They want a NEW pdf made from a SUBSET of those pages (or all).
+          Return ONLY valid JSON:
+          {"includeAll": boolean, "pages": number[]}
 
-Return ONLY valid JSON:
-{"includeAll": boolean, "pages": number[]}
-
-- If they want every page or did not restrict pages, set "includeAll": true and "pages": [].
-- Otherwise set "includeAll": false and "pages" to sorted unique 1-based page numbers to copy (in document order). Example: pages 3-5 → [3,4,5]. "First 4 pages" → [1,2,3,4]. "Last 2 pages" → [${Math.max(1, totalPages - 1)},${totalPages}] (adjust for ${totalPages}).
-- Every number must be between 1 and ${totalPages}. Omit invalid numbers.`,
+          - If they want every page or did not restrict pages, set "includeAll": true and "pages": [].
+          - Otherwise set "includeAll": false and "pages" to sorted unique 1-based page numbers to copy (in document order). Example: pages 3-5 → [3,4,5]. "First 4 pages" → [1,2,3,4]. "Last 2 pages" → [${Math.max(1, totalPages - 1)},${totalPages}] (adjust for ${totalPages}).
+          - Every number must be between 1 and ${totalPages}. Omit invalid numbers.`,
         },
         { role: "user", content: userPrompt },
       ],
@@ -804,49 +838,63 @@ function wrapParagraphs(
 
 export async function buildPdfBuffer(
   plan: PdfPlan,
-  style?: ExtractedDocumentStyle
+  style?: ExtractedDocumentStyle,
 ): Promise<Uint8Array> {
   console.log("buildPdfBuffer called with style:", style);
-  
+
   const pdfDoc = await PDFDocument.create();
-  
+
   // Use provided style or default to Helvetica
   const bodyFontName = style?.bodyFont || StandardFonts.Helvetica;
   const headingFontName = style?.headingFont || StandardFonts.HelveticaBold;
-  
+
   console.log("Using fonts - Body:", bodyFontName, "Heading:", headingFontName);
-  
+
   const font = await pdfDoc.embedFont(bodyFontName);
   const bold = await pdfDoc.embedFont(headingFontName);
 
   // Use page size from style or default A4
   const pageWidth = style?.pageSize?.width || 595;
   const pageHeight = style?.pageSize?.height || 842;
-  
+
   // Use margins from style or default
   const margin = style?.margins?.top || 50;
   const maxWidth = pageWidth - 2 * margin;
-  
+
   // Use font sizes from style or default
   const titleSize = style?.titleFontSize || 18;
   const headingSize = style?.headingFontSize || 14;
   const bodySize = style?.bodyFontSize || 11;
-  
-  console.log("Using sizes - Title:", titleSize, "Heading:", headingSize, "Body:", bodySize);
-  
+
+  console.log(
+    "Using sizes - Title:",
+    titleSize,
+    "Heading:",
+    headingSize,
+    "Body:",
+    bodySize,
+  );
+
   // Use colors from style or default
-  const titleColor = style?.primaryColor ? 
-    rgb(style.primaryColor.r, style.primaryColor.g, style.primaryColor.b) : 
-    rgb(0.1, 0.1, 0.1);
-  const headingColor = style?.headingColor ? 
-    rgb(style.headingColor.r, style.headingColor.g, style.headingColor.b) : 
-    rgb(0.15, 0.15, 0.45);
-  const bodyColor = style?.bodyColor ? 
-    rgb(style.bodyColor.r, style.bodyColor.g, style.bodyColor.b) : 
-    rgb(0.1, 0.1, 0.1);
-  
-  console.log("Using colors - Title:", style?.primaryColor, "Heading:", style?.headingColor, "Body:", style?.bodyColor);
-  
+  const titleColor = style?.primaryColor
+    ? rgb(style.primaryColor.r, style.primaryColor.g, style.primaryColor.b)
+    : rgb(0.1, 0.1, 0.1);
+  const headingColor = style?.headingColor
+    ? rgb(style.headingColor.r, style.headingColor.g, style.headingColor.b)
+    : rgb(0.15, 0.15, 0.45);
+  const bodyColor = style?.bodyColor
+    ? rgb(style.bodyColor.r, style.bodyColor.g, style.bodyColor.b)
+    : rgb(0.1, 0.1, 0.1);
+
+  console.log(
+    "Using colors - Title:",
+    style?.primaryColor,
+    "Heading:",
+    style?.headingColor,
+    "Body:",
+    style?.bodyColor,
+  );
+
   // Use line height from style or default
   const lineHeightMult = style?.lineHeight || 1.25;
   const lineH = (size: number) => size * lineHeightMult;
